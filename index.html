@@ -53,7 +53,7 @@
 <h3>Bruk av bilder i dyplæring - utfordringer og løsninger</h3>
 <br />
 <br />
-Lars Jahr Røine - Avdeling for applikasjonsutvikling, ICGI
+<p>Lars Jahr Røine - Avdeling for applikasjonsutvikling, ICGI</p>
 <aside class="notes">
 Formålet med dette foredraget er å gi et innblikk i hva<br/>
 vi i avdeling for applikasjonsutvikling jobber med,<br/>
@@ -97,15 +97,10 @@ I andre prosjekter trenger man full oppløsning, og man må derfor først dele o
 </aside>
 </section>
 <section >
-<h3>Tiling</h3>
+<h3>Tiling - preprosesseringssteg</h3>
 <ul>
 <li>
-<p>Frem til nå har oppdeling i små bilder (tiling) blitt gjort som et preprosseseringssteg
-<br />
-<br /></p>
-</li>
-<li>
-<p>Forrige prosjekt:</p>
+Forrige prosjekt:
 <ul>
 <li>6 millioner tiles (512x512 pixler)</li>
 <li>Tre dager for å generere</li>
@@ -114,8 +109,10 @@ I andre prosjekter trenger man full oppløsning, og man må derfor først dele o
 </ul>
 </li>
 </ul>
-<br />
-<img src="images/tiles_illustration.png" width=300 data-state="img-right"/>
+<img src="images/gridding_animated.gif" />
+<aside class="notes">
+Frem til nå har oppdeling i små bilder (tiling) blitt gjort som et preprosseseringssteg<br/>
+</aside>
 </section>
 <section >
 <h3>Utfordringer ved å gjøre tiling som preprosessering</h3>
@@ -126,6 +123,7 @@ I andre prosjekter trenger man full oppløsning, og man må derfor først dele o
 <li>Forskere må be en person om tiles for et prosjekt - og vente på resultatet</li>
 <li>Samme tiles blir lagret på forskjellige maskiner (duplisering)</li>
 </ul>
+<img src="images/tiles_illustration.png" width=300 data-state="img-right"/>
 </section>
 <section >
 <h3>Løsning</h3>
@@ -169,12 +167,34 @@ som gir mye bedre ytelse, særlig parallel ytelse<br/>
 </section>
 <section >
 <h3>Software</h3>
-<ul>
-<li>Enkel web-server skrevet i Python med bruk av Flask</li>
-<li>Openslide for å hente ut tiles</li>
-</ul>
-<br />
-<br />
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="python">import flask
+import openslide
+@app.route('/', methods=['POST'])
+def tiling():
+    json_dict = request.get_json()
+    filename = json_dict['filename']
+
+    ...
+
+    file_path = available_cases.get(filename)
+    slide = filecontainer.get_slide(file_path)
+    response = generate_response(slide, start, level, size_x, size_y)
+    return response
+</code></pre></td></tr></table>
 <aside class="notes">
 Python i kombinasjon med Flask gjør at det kreves lite kode<br/>
 og jobb for å lage en fungerende web-server<br/>
@@ -183,14 +203,23 @@ eller nedskalerte bilder av hele scans, uavhengig av<br/>
 hvor bildene kommer fra (hva slags scanner/mikroskop)<br/>
 </aside>
 <img src="images/flask_logo.png" width=400 background="white" />
-<br/>
 <img src="images/openslide_logo.png" widt=400 background="white" />
 </section>
 <section >
 <h3>Resultat</h3>
 <ul>
-<li></li>
+<li>Slipper å lagre store datamengder</li>
+<li>Frigjør arbeidstid</li>
+<li>Forskere får større fleksibilitet</li>
+<li>Brukere trenger ikke vente på at tiling skal gjøres</li>
+<li>Bedre utnyttelse av regnekraften til grafikkort</li>
 </ul>
+<aside class="notes">
+Ikke lenger dupliserte data<br/>
+Trenger ikke oppta arbeidstiden til en person for å lage tiles<br/>
+Forskerne kan selv velge posisjonen til tiles og oppløsning<br/>
+Svært raske disker gjør det lettere å fullt ut utnytte<br/>
+regnekraften til grafikkort<br/>
 </section>
 
 
