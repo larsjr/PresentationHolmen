@@ -1,0 +1,226 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Gjøre data tilgjengelig for dyplæring</title>
+    <meta name="description" content="Utfordringer og løsninger i forbindelse med dyplæringsprosjekter">
+    <meta name="author" content="Lars Jahr Røine">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="//code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="//code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/night.css" id="theme">
+    <link type="text/css" rel="stylesheet" href="fsharp.formatting/styles/style.css" />
+    <link type="text/css" rel="stylesheet" href="fsharp.formatting/styles/deedle.css" />
+    <link type="text/css" rel="stylesheet" href="css/custom.css" />
+    <script src="fsharp.formatting/styles/tips.js" type="text/javascript"></script>
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    <link rel="stylesheet" href="css/fsreveal.css">
+    <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+    <script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+    </script>
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+    <script language="javascript" type="text/javascript">
+        function init()
+        {
+            websocket = new WebSocket("ws://"+window.location.host+"/websocket");
+            websocket.onmessage = function(evt) { location.reload(); };
+        }
+        window.addEventListener("load", init, false);
+    </script>
+</head>
+<body>
+    <div class="reveal">
+        
+        <!-- Any section element inside of this container is displayed as a slide -->
+        <div class="slides">
+            <section >
+<h3>Bruk av bilder i dyplæring - utfordringer og løsninger</h3>
+<br />
+<br />
+Lars Jahr Røine - Avdeling for applikasjonsutvikling, ICGI
+<aside class="notes">
+Formålet med dette foredraget er å gi et innblikk i hva<br/>
+vi i avdeling for applikasjonsutvikling jobber med,<br/>
+og hvordan vi samarbeider tett med både forskere og<br/>
+driftsavdelingen<br/>
+</aside>
+</section>
+<section >
+<h3>Store datamengder</h3>
+<ul>
+<li>
+Eksempelprosjekt
+<ul>
+<li>~ 800 bilder</li>
+<li>1.2 TB (1200 GB) dvs. ca 1.5 GB per bilde</li>
+</ul>
+</li>
+</ul>
+<br />
+<img src="images/example_vms_resized.jpg" />
+<img src="images/mobile_camera_resized.jpg" />
+<aside class="notes">
+Illustrerer forskjellen mellom et et bilde fra scanner og et bilde fra en smarttelefon<br/>
+</aside>
+</section>
+<section >
+<h3>Bildestørrelse</h3>
+<ul>
+<li>På grunn av størrelsen kan ikke bildene brukes som de er</li>
+<li>
+Noen alternativer:
+<ul>
+<li>Nedskalere størrelsen</li>
+<li>Dele opp bildene i mange mindre bilder (tiles)</li>
+</ul>
+</li>
+</ul>
+<aside class="notes">
+I noen tilfeller kan gjøre bildene mindre og bruke hele bildet<br/>
+I andre prosjekter trenger man full oppløsning, og man må derfor først dele opp bildene<br/>
+</aside>
+</section>
+<section >
+<h3>Tiling</h3>
+<ul>
+<li>
+<p>Frem til nå har oppdeling i små bilder (tiling) blitt gjort som et preprosseseringssteg
+<br />
+<br /></p>
+</li>
+<li>
+<p>Forrige prosjekt:</p>
+<ul>
+<li>6 millioner tiles (512x512 pixler)</li>
+<li>Tre dager for å generere</li>
+<li>Fire dager på å kopiere</li>
+<li>Åtte maskiner i bruk</li>
+</ul>
+</li>
+</ul>
+<br />
+<img src="images/tiles_illustration.png" width=300 data-state="img-right"/>
+</section>
+<section >
+<h3>Utfordringer ved å gjøre tiling som preprosessering</h3>
+<ul>
+<li>Meget tidkrevende</li>
+<li>Hele prosessen må gjøres på nytt dersom man ønsker annen oppøsning på tiles</li>
+<li>Mye manuell kopiering av filer</li>
+<li>Samme tiles blir lagret på forskjellige maskiner (duplisering)</li>
+</ul>
+</section>
+<section >
+<h3>Løsning</h3>
+<ul>
+<li>
+En sentralisert server som kan generere tiles på direkten
+<ul>
+<li>Brukere kan velge størrelse på tiles</li>
+<li>Brukere kan hente ut tiles fra vilkårlige posisjoner</li>
+<li>Brukere kan hente ut tiles fra valgfritt zoomnivå</li>
+<li>Lite jobb å gjøre nye prosjekter tilgjengelig</li>
+<li>Må kunne brukes av flere klienter samtidig</li>
+<li>Stiller høye krav til maskinvare - spesielt harddisker</li>
+</ul>
+</li>
+</ul>
+<aside class="notes">
+Dette gir en fleksibilitet for brukerene av serveren<br/>
+som gjør at det går raskere å teste ut nye metoder<br/>
+For eksempel er da forskerene ikke låst til pregenererte<br/>
+tiles som dekker forskjellige områder, men kan da<br/>
+velge å hente ut tiles med overlapp dersom det er ønskelig<br/>
+</aside>
+</section>
+<section >
+<h3>Hardware</h3>
+<ul>
+<li>2 x 12 x 3.0 Ghz kjerner</li>
+<li>64 GB RAM</li>
+<li>4 x 2.0 TB NVMe SSD</li>
+</ul>
+<aside class="notes">
+Trond kom fra til hardware utifra kravene som ble satt<br/>
+Her er det spesielt NVMe-diskene som gjør at vi får god ytelse<br/>
+SSD har mye bedre ytelse enn gamle harddisker, men er fortsatt begrenset<br/>
+av SATA (forbindelsen som brukes til hovedkortet)<br/>
+Her bruker NVMe PCI express - samme type tilkobling som f.eks grafikkort,<br/>
+som gir mye bedre ytelse, særlig parallel ytelse<br/>
+</aside>
+<img src="images/drives_performance.png" width=600/>
+</section>
+<section >
+<h3>Software</h3>
+<ul>
+<li>Enkel web-server skrevet i Python med bruk av Flask</li>
+<li>Openslide for å hente ut tiles</li>
+</ul>
+<br />
+<br />
+<aside class="notes">
+Python i kombinasjon med Flask gjør at det kreves lite kode<br/>
+og jobb for å lage en fungerende web-server<br/>
+Openslide gjør det lett å lese hente ut tiles i full oppløsning,<br/>
+eller nedskalerte bilder av hele scans, uavhengig av<br/>
+hvor bildene kommer fra (hva slags scanner/mikroskop)<br/>
+</aside>
+<img src="images/flask_logo.png" width=400 background="white" />
+<br/>
+<img src="images/openslide_logo.png" widt=400 background="white" />
+</section>
+
+
+        </div>
+    </div>
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+    <script>
+        // Add the nohighlight class and data-noescape attribute to code elements that have already been formatted by FSharp.Formatting
+        $('pre.highlighted code').addClass('nohighlight').attr('data-noescape', '');
+
+        // Full list of configuration options available here:
+        // https://github.com/hakimel/reveal.js#configuration
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            history: true,
+            center: true,
+
+            transition: 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+            // Parallax scrolling
+            // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+            // parallaxBackgroundSize: '2100px 900px',
+
+            // Optional libraries used to extend on reveal.js
+            dependencies: [
+                { src: 'lib/js/classList.js', condition: function () { return !document.body.classList; } },
+                { src: 'plugin/markdown/marked.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
+                { src: 'plugin/markdown/markdown.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
+                { src: 'plugin/highlight/highlight.js', async: true, callback: function () { hljs.initHighlightingOnLoad(); } },
+                { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () { return !!document.body.classList; } },
+                { src: 'plugin/notes/notes.js', async: true, condition: function () { return !!document.body.classList; } }
+            ]
+        });
+
+    </script>
+</body>
+</html>
+
